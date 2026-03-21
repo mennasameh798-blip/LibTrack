@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LibTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --card: #111827;
+    --accent: #4f8fff;
+    --accent2: #7c3aed;
+    --empty: #10b981;
+    --medium: #f59e0b;
+    --crowded: #ef4444;
+    --text: #f0f4ff;
+    --muted: #6b7fa3;
+    --border: rgba(79,143,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .phone {
+    width: 100%;
+    max-width: 390px;
+    min-height: 100vh;
+    position: relative;
+    padding: 0 24px 40px;
+    overflow: hidden;
+  }
+
+  /* Background blobs */
+  .blob1 {
+    position: fixed;
+    top: -180px;
+    left: -80px;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(79,143,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .blob2 {
+    position: fixed;
+    bottom: -120px;
+    right: -80px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(124,58,237,0.10) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  .header {
+    position: relative;
+    z-index: 1;
+    padding-top: 56px;
+    padding-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .header-left .team {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .header-left .appname {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16,185,129,0.10);
+    border: 1px solid rgba(16,185,129,0.30);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--empty);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--empty);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* Main card */
+  .main-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(17, 24, 39, 0.90);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .gradient-line {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px 2px 0 0;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    margin-top: 8px;
+  }
+
+  .count-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .count-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 88px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .count-sub {
+    padding-bottom: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Status pill */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 20px;
+    border-radius: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    transition: all 0.
+4s ease;
+  }
+
+  .status-pill.empty {
+    background: rgba(16,185,129,0.12);
+    color: var(--empty);
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+  .status-pill.medium {
+    background: rgba(245,158,11,0.12);
+    color: var(--medium);
+    border: 1px solid rgba(245,158,11,0.25);
+  }
+  .status-pill.crowded {
+    background: rgba(239,68,68,0.12);
+    color: var(--crowded);
+    border: 1px solid rgba(239,68,68,0.25);
+  }
+
+  /* Capacity */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 16px;
+  }
+
+  .capacity-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .capacity-header span {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .capacity-header strong {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Lighting card */
+  .light-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(17, 24, 39, 0.90);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .light-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  .light-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    transition: color 0.4s ease;
+  }
+
+  .light-value.on { color: var(--medium); }
+  .light-value.off { color: var(--muted); }
+
+  /* Toggle */
+  .toggle {
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    position: relative;
+    transition: all 0.4s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle.on {
+    background: rgba(245,158,11,0.20);
+    border: 1px solid rgba(245,158,11,0.40);
+  }
+
+  .toggle.off {
+    background: rgba(107,127,163,0.15);
+    border: 1px solid rgba(107,127,163,0.25);
+  }
+
+  .toggle-knob {
+    position: absolute;
+    top: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .toggle.on .toggle-knob {
+    right: 4px;
+    background: var(--medium);
+    box-shadow: 0 0 8px rgba(245,158,11,0.5);
+  }
+
+  .toggle.off .toggle-knob {
+    left: 4px;
+    background: var(--muted);
+  }
+
+  /* Last update */
+  .last-update {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .last-update .highlight {
+    color: var(--accent);
+  }
+
+  /* Loading state */
+  .loading {
+    opacity: 0.5;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.3; }
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="blob1"></div>
+  <div class="blob2"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="team">Vortex System</div>
+      <div class="appname">LibTrack</div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="main-card">
+    <div class="gradient-line"></div>
+    <div class="card-label">Current Occupancy</div>
+    <div class="count-row">
+      <div class="count-number" id="countNum">—</div>
+      <div class="count-sub">people<br>inside</div>
+    </div>
+    <div class="status-pill medium" id="statusPill">Medium</div>
+    <div class="divider"></div>
+    <div class="capacity-header">
+      <span>Capacity</span>
+      <strong id="capacityText">— / 8+</strong>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" id="barFill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- Lighting Card -->
+  <div class="light-card">
+    <div>
+      <div class="light-label">Smart Lighting</div>
+      <div class="light-value on" id="lightValue">Lights ON 💡</div>
+    </div>
+    <div class="toggle on" id="toggleEl">
+      <div class="toggle-knob"></div>
+    </div>
+  </div>
+
+  <!-- Last Update -->
+  <div class="last-update">
+    Last updated <span class="highlight" id="lastUpdated">connecting...</span> · auto-refresh
+  </div>
+</div>
+
+<script>
+  const FIREBASE_URL = "https://library-system-1848e-default-rtdb.firebaseio.com/count.json";
+
+  function getStatus(count) {
+    if (count === 0) return { label: "Empty", cls: "empty" };
+    if (count <= 3)  return { label: "Empty", cls: "empty" };
+    if (count <= 7)  return { label: "Medium", cls: "medium" };
+    return { label: "Crowded", cls: "crowded" };
+  }
+
+  function getBarWidth(count) {
+    const max = 12;
+    return Math.min((count / max) * 100, 100);
+  }
+
+  function timeAgo() {
+    return "just now";
+  }
+
+  function updateUI(count) {
+    // Count
+    document.getElementById("countNum").textContent = count;
+
+    // Status
+    const { label, cls } = getStatus(count);
+    const pill = document.getElementById("statusPill");
+    pill.textContent = label;
+    pill.className = "status-pill " + cls;
+
+    // Capacity bar
+    document.getElementById("capacityText").textContent = count + " / 8+";
+    document.getElementById("barFill").style.width = getBarWidth(count) + "%";
+
+    // Lighting
+    const lightValue = document.getElementById("lightValue");
+    const toggleEl = document.getElementById("toggleEl");
+    if (count > 0) {
+      lightValue.textContent = "Lights ON 💡";
+      lightValue.className = "light-value on";
+      toggleEl.className = "toggle on";
+    } else {
+      lightValue.textContent = "Lights OFF";
+      lightValue.className = "light-value off";
+      toggleEl.className = "toggle off";
+    }
+
+    // Last updated
+    document.getElementById("lastUpdated").textContent = "just now";
+  }
+
+  async function fetchCount() {
+    try {
+      const res = await fetch(FIREBASE_URL);
+      const data = await res.json();
+      const count = typeof data === "number" ? data : 0;
+      updateUI(count);
+    } catch (err) {
+      document.getElementById("lastUpdated").textContent = "connection error";
+    }
+  }
+
+  // Fetch on load + every 3 seconds
+  fetchCount();
+  setInterval(fetchCount, 3000);
+</script>
+</body>
+</html>
